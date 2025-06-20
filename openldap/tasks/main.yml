@@ -1,0 +1,138 @@
+---
+# tasks file for openldap
+- name: "check if slapd exists"
+  ansible.builtin.stat:
+    path: '/etc/default/slapd'
+  register: slapd_exists
+  changed_when: false
+  tags:
+    - openldap
+    - check
+
+- name: "configure admin password"
+  ansible.builtin.debconf:
+    name: 'slapd'
+    question: 'slapd/password1'
+    vtype: 'password'
+    value: '{{ openldap_password }}'
+  when: not slapd_exists.stat.exists
+  tags:
+    - openldap
+    - debconf
+    - password
+
+- name: "confirm admin password"
+  ansible.builtin.debconf:
+    name: 'slapd'
+    question: 'slapd/password2'
+    vtype: 'password'
+    value: '{{ openldap_password }}'
+  when: not slapd_exists.stat.exists
+  tags:
+    - openldap
+    - debconf
+    - password
+
+- name: "set organization name"
+  ansible.builtin.debconf:
+    name: 'slapd'
+    question: 'shared/organization'
+    vtype: 'string'
+    value: '{{ openldap_organization }}'
+  when:
+    - not slapd_exists.stat.exists
+    - openldap_organization is defined
+  tags:
+    - openldap
+    - debconf
+    - organization
+
+- name: "set domain name"
+  ansible.builtin.debconf:
+    name: 'slapd'
+    question: 'slapd/domain'
+    vtype: 'string'
+    value: '{{ openldap_domain }}'
+  when:
+    - not slapd_exists.stat.exists
+    - openldap_organization is defined
+  tags:
+    - openldap
+    - debconf
+    - organization
+
+- name: Mettre à jour le cache APT
+  apt:
+    update_cache: yes
+
+
+
+- name: "packages"
+  ansible.builtin.package:
+    name: '{{ openldap_packages }}'
+  tags:
+    - openldap
+    - packages
+
+- name: service_facts
+  ansible.builtin.service_facts:
+  tags:
+    - openldap
+    - facts
+
+- name: "default configuration"
+  ansible.builtin.template:
+    src: 'etc_default_slapd.j2'
+    dest: '/etc/default/slapd'
+    mode: 0644
+  when: "'slapd.service' in services"
+  notify:
+    - slapd restart
+  tags:
+    - openldap
+    - defaults
+    
+    
+    
+- name: config_openldap | configuring phpldapadmin
+  template:
+    src: config.php.j2
+    dest: /etc/phpldapadmin/config.php
+    owner: root
+    group: www-data
+    mode: 0640
+  when: '"phpldapadmin" in openldap_packages'
+  
+  
+  
+  
+- name: config_openldap | creating database population config
+  template:
+    src: populate_content.ldif.j2
+    dest: /etc/ldap/slapd.d/populate_content.ldif
+    owner: root
+    group: root
+    mode: 0640
+  
+  
+
+
+- name: Import LDAP data from LDIF file
+  ansible.builtin.command: >
+    ldapadd -x -D "cn=admin,{{ openldap_base }}" -w "{{ openldap_password }}" -H ldap://localhost  -f /etc/ldap/slapd.d/populate_content.ldif
+  when: "'slapd.service' in services"
+  
+- name: lapd restart
+  ansible.builtin.debug:
+      msg: "Trigger slapd restart handler"
+  notify: slapd restart
+    
+
+  
+
+  
+  
+  
+
+# try to configure clients without certificates checking
+# - name: "create default organization units"

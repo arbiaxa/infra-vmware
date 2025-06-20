@@ -1,0 +1,61 @@
+---
+# defaults file for openldap
+openldap_packages:
+  - slapd
+  - ldap-utils
+  - php-xml
+  - phpldapadmin
+  
+openldapClient_packages:
+  - libnss-ldapd  
+  - libpam-ldapd
+  - ldap-utils
+  
+
+# By default, top level organization and domain components are guessed from DNS
+# domain ! If these values are unset, org, domain and rootdn will be
+# yourdomain.org and cn=admin,dc=yourdomain,dc=org
+# openldap_organization: 'example.org'
+# openldap_domain: 'example.org'
+# openldap_rootdn: 'cn=admin,dc=example,dc=org'
+
+
+openldap_admin_user: admin
+openldap_password: '0000'
+openldap_server_host: 192.168.80.132 
+openldap_organization: 'flexos-tunisie.local'
+openldap_domain: 'flexos-tunisie.local'
+
+openldap_org: flexos-tunisie
+openldap_tld: local
+
+
+openldap_base: "{{ 'dc=' + openldap_org + ',dc=' + openldap_tld }}"
+openldap_bind_id: "{{ 'cn=' + openldap_bind_user + ',' + openldap_base }}"
+openldap_bind_user: "{{ openldap_admin_user }}"
+
+
+openldap_phpldapadmin_hide_warnings: true
+
+
+# Yes, this should be moved to Ansible Vault
+
+
+# openldap_uris: 'ldap://127.0.0.1/ ldaps:/// ldapi:///'
+# the previous one is of course more secure than the default one following line
+openldap_uris: 'ldap://192.168.80.132 ldapi:///'
+
+
+
+openldap_organizationalunits:
+  - USERS
+  - DEVICES
+  - GROUPS
+  - Employees
+  
+
+
+
+
+  
+

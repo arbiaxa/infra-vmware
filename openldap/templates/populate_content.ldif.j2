@@ -1,0 +1,62 @@
+
+# Define organizational units
+{% for item in openldap_organizationalunits %}
+dn: ou={{ item }},{{ openldap_base }}
+objectClass: organizationalUnit
+ou: {{ item }}
+
+{% endfor %}
+
+
+#define depatments
+
+dn: ou=IT,ou=employees,{{ openldap_base }}
+objectClass: organizationalUnit
+
+
+dn: ou=RH,ou=employees,{{ openldap_base }}
+objectClass: organizationalUnit
+
+dn: ou=Commercial,ou=employees,{{ openldap_base }}
+objectClass: organizationalUnit
+
+
+
+# Define groups
+dn: cn=security-team,ou=IT,ou=employees,{{ openldap_base }}
+objectClass: posixGroup
+gidNumber: 1111
+cn: security-team
+
+dn: cn=infra-team,ou=IT,ou=Employees,{{ openldap_base }}
+objectClass: posixGroup
+gidNumber: 1112
+memberUid: 10002
+cn: infra-team
+
+
+dn: cn=network-team,ou=IT,ou=Employees,{{ openldap_base }}
+objectClass: posixGroup
+gidNumber: 1112
+cn: network-team
+
+
+# Define users
+dn: uid=sleh,ou=IT,ou=Employees,dc=flexos-tunisie,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: sleh
+sn: Smith
+givenName: Sleh
+cn: Sleh Smith
+displayName: Sleh Smith
+uidNumber: 10002
+gidNumber: 1112
+userPassword: arbia0
+gecos: Sleh Smith
+loginShell: /bin/bash
+homeDirectory: /home/Sleh
+
+
+

@@ -1,0 +1,21 @@
+galaxy_info:
+  author: Mathias BOCQUET
+  description: Ansible role to install and configure OpenLDAP.
+  company: Sekoya.org (http://www.sekoya.org)
+
+  issue_tracker_url: https://git.sekoya.org/mb/openldap/issue
+  license: GPLv3
+
+  min_ansible_version: "2.4"
+
+  platforms:
+  - name: Debian
+    versions:
+      - all
+
+  galaxy_tags:
+    - ldap
+    - openldap
+    - sysadmin
+
+dependencies: []
