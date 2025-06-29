@@ -1,0 +1,28 @@
+
+
+services:
+  application:
+    image: arbeyaa/bwapp:latest
+    ports:
+      - "8080:84"
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - webapp-net
+
+  db:
+    image: mysql:5.5
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+      - webapp-net
+
+networks:
+  webapp-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.20.0.0/24"
+
