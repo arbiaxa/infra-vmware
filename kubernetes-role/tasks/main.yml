@@ -1,0 +1,138 @@
+#all-nodes
+  
+- name: Updates
+  apt:
+    update_cache: yes
+
+- name: Disable SWAP
+  shell: |
+    swapoff -a
+
+- name: Disable SWAP in fstab
+  replace:
+     path: /etc/fstab
+     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+     replace: '# \1' 
+     
+      
+     
+- name: Create an empty file for the containerd module
+  copy:
+     content:  |
+        overlay
+        br_netfilter
+     dest: /etc/modules-load.d/containerd.conf
+     force: no      
+     
+- name: Create an empty file for the k8s module
+  copy:
+     content:  |
+        - "net.bridge.bridge-nf-call-iptables  = 1"
+        - "net.ipv4.ip_forward                 = 1"
+        - "net.bridge.bridge-nf-call-ip6tables = 1"
+     dest:  /etc/sysctl.d/99-kubernetes-cri.conf
+     force: no           
+     
+         
+     
+     
+- name: immidiatly modules
+  shell: |
+     modprobe overlay
+     modprobe br_netfilter      
+ 
+ 
+ #docker installation   
+    
+- name: Create apt keyrings directory
+  file:
+     path: /etc/apt/keyrings
+     state: directory
+     mode: '0755'   
+     
+       
+- name: Add Docker's official GPG key
+  get_url:
+     url: https://download.docker.com/linux/ubuntu/gpg
+     dest: /etc/apt/keyrings/docker.asc
+     mode: "0644"
+          
+- name: Add the Docker repository to Apt sources
+  shell: |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+        
+          
+- name: docker packages download
+  package:
+    name: '{{ docker_packages }}'
+  tags:
+    - openldap
+    - packages
+
+
+- name: install cri 
+  get_url:
+      url: https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.18/cri-dockerd_0.3.18.3-0.ubuntu-jammy_amd64.deb
+      dest: /tmp
+      
+      
+          
+- name: 
+  apt:
+   deb: /tmp/cri-dockerd_0.3.18.3-0.ubuntu-jammy_amd64.deb
+   state: present      
+
+
+
+#k8s installation
+
+- name: Add k8s's official GPG key
+  get_url:
+     url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+     dest: /tmp/k8s-release.key
+     mode: "0644"
+
+- name: Convert GPG key to binary format (.gpg)
+  shell: |
+    gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/k8s-release.key
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    
+    
+- name: Add the Docker repository to Apt sources
+  shell: |
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    
+    
+    
+- name: k8s packages download
+  package:
+    name: '{{ kubernetes_packages }}'
+  tags:
+    - openldap
+    - packages    
+
+
+- name: block updates for k8s versions
+  shell: |
+     apt-mark hold kubelet kubectl kubeadm
+
+    
+    
+
+
+
+         

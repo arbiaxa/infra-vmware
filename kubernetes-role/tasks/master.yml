@@ -1,0 +1,63 @@
+
+#*****master
+
+- name: Initialize the cluster
+  shell: kubeadm init --cri-socket=/var/run/cri-dockerd.sock --pod-network-cidr=10.0.0.0/16
+  args:
+    chdir: /home/arbeya
+    creates: /etc/kubernetes/admin.conf
+
+
+- name: Retrieve Join Command
+  shell: kubeadm token create --print-join-command
+  register: cmd_join_raw
+
+
+
+- name: set jon_command fact for the master
+  set_fact:  #key----value
+    join_command: "{{ cmd_join_raw.stdout_lines[0] }}"
+     
+
+    
+    
+
+- name: Create .kube directory
+  become: yes
+  become_user: arbeya
+  file:
+     path: $HOME/.kube
+     state: directory
+     mode: 0755
+
+- name: Copy admin.conf to User's kube config
+  copy:
+     src: /etc/kubernetes/admin.conf
+     dest: /home/arbeya/.kube/config
+     owner: arbeya
+     remote_src: true
+     
+     
+
+# cni dockerd
+
+- name: cni
+  get_url:
+     url: https://raw.githubusercontent.com/projectcalico/calico/v3.30.0/manifests/calico.yaml 
+     dest: /tmp
+ 
+- name: apply the cni plugin
+  become: yes
+  become_user: arbeya
+  command: kubectl apply -f /tmp/calico.yaml
+
+
+
+     
+
+
+
+
+
+
+

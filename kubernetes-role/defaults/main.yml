@@ -1,0 +1,19 @@
+---
+# defaults file for kubernetes
+
+docker_packages: 
+  - docker-ce 
+  - docker-ce-cli 
+  - containerd.io 
+  - docker-buildx-plugin 
+  - docker-compose-plugin
+   
+kubernetes_packages: 
+  - kubeadm
+  - kubelet
+  - kubectl
+   
+master_ip: 192.168.80.133
+profile_name: arbeya      
+   
+    
