@@ -1,0 +1,37 @@
+#cloud-config
+
+# sets the hostname to 'terraformed'
+hostname: openldap
+#mdp=arbia
+
+ssh_pwauth: false
+users:
+# Adds a user called 'example' with the password hash of 'p$6$rounds=4096$P0uvlB9.8nsiY67$uuOxYSk6n/74Ds3JtV1mT6xYjOguwTWgNmOeHvcHiQa9zan57l8dvfHE/zlu19fDmJGySNzLmh6K0R2I1AU9o0asswort', sudo rights and the default ubuntu groups
+        - name: arbeya
+          passwd: $6$BeycaO9enqABUXBu$P.xJqF0FVMYPqabGS2IoAV41Kxq3k/VR8xRgbWkd.T01wzP9vLJMvl4zsk5f001ceIhgcD4GCE03K4iDUfm5s.
+          lock_passwd: false 
+          sudo: ALL=(ALL) ALL
+          groups: [adm, audio, cdrom, dialout, floppy, video, plugdev, dip, netdev]
+
+        - name: ansible
+          gecos: Ansible User
+          groups: users,admin,wheel
+          sudo: "ALL=(ALL) NOPASSWD:ALL"
+          shell: /bin/bash
+          lock_passwd: true
+          ssh_authorized_keys:
+          - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCdVVeKUpfLb/ihmbe3fgZ+9rEXpMujvKaKDK7xndR++GZ+ll89vkRUoIkaKw6MI91XztwGrjGEQT/D1UgBxQju/oQiBY76jJHm8UGXvmyGx8uld2qURAlpXKLPGnY9l4TcTZEiymskXWn13i1DZ1kl8yqodsTFKzXxzfgt/AgmeEAKjPSka1ochH8KLMRIb7gr26IFOsD0LM9xTKHV6GUlxd0pkTQtnJYb/LJF7lnc2TLqyZU9fG+spFkD9aVoxk4YHcFUBOSPjCWHhoU6PThbfp8v8hQLZZ6J8PFTd0zHjFRjvhh4dNQFPsR9+7FT7fVPGYWyDThR/OjJLqA5IGPke8MOfVCgS5oe8f+NElknl4HcFDwFZohfGruUTlShZ4p0urbaQm0/LiF8zgHvjeNgaTSWa5kJkldGF/6aNbLhd7qQI3d/dhEcUCgSdcwzrhm7vZ1D0NMpZPjv1x3YrYO68j7YM05mPawPm9cQtQ7iG5uhqYh4QyfQ1ZfQr9XzKRZeyvuK6GWkRRR2ExEquFAzyQQNt/GIg9u9t6jhIgJJ6QoKZRu8wMsBu9VAOSDfq+ltIe8kxVermXhx9Nde4if7qVifo/8uzE+mQeGJRttwVoMnCz8LgqWNm7J4OH1FPSl0jrZK+k6RGgpAnIrOwR9yzgcZ9kW+usRU+LLshbZbKQ== arbeya@arbeya-virtual-machine"
+
+
+
+#runcmd:
+ # - ip route add 192.168.100.0/24 via 192.168.90.11 dev ens192
+  
+  
+
+
+ 
+
+
+
+

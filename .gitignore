@@ -1,0 +1,2 @@
+terraform_project/vsphere/VMs/ovf_files/*
+terraform_project/vsphere/VMs/.terrraform/*
